@@ -1,0 +1,75 @@
+package com.lendmate.orderservice.service.impl;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.lendmate.orderservice.dto.requestDto.OrderRequest;
+import com.lendmate.orderservice.dto.responseDto.OrderResponse;
+import com.lendmate.orderservice.mapper.OrderItemMapper;
+import com.lendmate.orderservice.mapper.OrderMapper;
+import com.lendmate.orderservice.model.Order;
+import com.lendmate.orderservice.model.OrderItem;
+import com.lendmate.orderservice.repository.OrderRepository;
+import com.lendmate.orderservice.service.OrderService;
+
+import lombok.AllArgsConstructor;
+
+@Service
+@AllArgsConstructor
+public class OrderServiceImpl implements OrderService {
+    private final OrderRepository orderRepository;
+    private final OrderMapper mapper;
+    private final OrderItemMapper itemMapper;
+
+    @Override
+    public OrderResponse getOrderById(Long id) {
+        Order order = orderRepository.findById(id).orElseThrow();
+        return mapper.toDto(order);
+    }
+
+    @Override
+    public List<OrderResponse> getAllOrders() {
+        return orderRepository.findAll().stream().map(mapper::toDto).collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional
+    public OrderResponse createOrder(OrderRequest request) {
+        Order order = mapper.toEntity(request);
+        Order saved = orderRepository.save(order);
+        return mapper.toDto(saved);
+    }
+
+    @Override
+    @Transactional
+    public OrderResponse updateOrder(Long id, OrderRequest request) {
+        Order order = orderRepository.findById(id).orElseThrow();
+        mapper.updateEntity(order, request);
+        // replace items if provided
+        if (request.getItems() != null) {
+            // remove existing
+            order.getItems().clear();
+            List<OrderItem> items = request.getItems().stream()
+                    .map(itemMapper::toEntity)
+                    .collect(Collectors.toList());
+            items.forEach(it -> it.setOrder(order));
+            order.setItems(items);
+        }
+        Order updated = orderRepository.save(order);
+        return mapper.toDto(updated);
+    }
+
+    @Override
+    public void deleteOrder(Long id) {
+        orderRepository.deleteById(id);
+    }
+
+    @Override
+    public void deleteOrdersByUser(Long userId) {
+        List<Order> orders = orderRepository.findAll().stream().filter(o -> o.getUserId().equals(userId)).collect(Collectors.toList());
+        orderRepository.deleteAll(orders);
+    }
+}
