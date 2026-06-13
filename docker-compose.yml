@@ -1,0 +1,20 @@
+networks:
+  lendmate-net:
+    external: true
+
+services:
+  product-service:
+    image: "order-service"
+    build: .
+    container_name: order-service
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/order_service_db
+      SPRING_DATASOURCE_USERNAME: lendmate
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
+      SPRING_PROFILES_ACTIVE: prod
+    restart: unless-stopped
+    networks:
+      - lendmate-net
+
+volumes:
+  postgres_data:
