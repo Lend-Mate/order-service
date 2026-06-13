@@ -1,6 +1,5 @@
 package com.lendmate.orderservice.dto.responseDto;
 
-import java.time.LocalDateTime;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,11 +10,9 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CartResponse {
+public class ProductImageResponse {
     private Long id;
-    private Long productId;
-    private Long userId;
-    private ProductResponse product;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+    private String imageUrl;
+    private boolean isPrimary;
+    private Long productId; // sadece id, tüm product objesi değil
 }

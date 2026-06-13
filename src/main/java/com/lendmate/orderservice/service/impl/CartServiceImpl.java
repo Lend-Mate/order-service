@@ -1,8 +1,11 @@
 package com.lendmate.orderservice.service.impl;
 
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Objects;
+import java.util.Optional;
 
+import com.lendmate.orderservice.dto.responseDto.ProductResponse;
+import com.lendmate.orderservice.service.client.ProductServiceClient;
 import org.springframework.stereotype.Service;
 
 import com.lendmate.orderservice.dto.requestDto.CartRequest;
@@ -18,6 +21,7 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 public class CartServiceImpl implements CartService {
     private final CartRepository cartRepository;
+    private final ProductServiceClient productServiceClient;
     private final CartMapper mapper;
 
     @Override
@@ -29,7 +33,19 @@ public class CartServiceImpl implements CartService {
 
     @Override
     public List<CartResponse> getCartsByUser(Long userId) {
-        return cartRepository.findByUserId(userId).stream().map(mapper::toDto).collect(Collectors.toList());
+        List<CartResponse> carts = cartRepository.findByUserId(userId).stream().map(mapper::toDto).toList();
+
+        List<Long> productIds = carts.stream().map(CartResponse::getProductId).toList();
+
+        List<ProductResponse> products = productServiceClient.getProductsByIds(productIds);
+
+        for (CartResponse cart : carts) {
+            Long productId = cart.getProductId();
+            Optional<ProductResponse> product = products.stream().filter(p -> Objects.equals(p.getId(), productId)).findFirst();
+            product.ifPresent(cart::setProduct);
+        }
+
+        return carts;
     }
 
     @Override
