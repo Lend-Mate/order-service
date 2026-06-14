@@ -3,7 +3,7 @@ networks:
     external: true
 
 services:
-  product-service:
+  order-service:
     image: "order-service"
     build: .
     container_name: order-service
