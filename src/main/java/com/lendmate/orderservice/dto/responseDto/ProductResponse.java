@@ -1,5 +1,6 @@
 package com.lendmate.orderservice.dto.responseDto;
 
+import com.lendmate.orderservice.model.Enum.Currency;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -7,7 +8,6 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.Currency;
 import java.util.List;
 
 @Data
