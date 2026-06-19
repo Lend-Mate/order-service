@@ -5,6 +5,7 @@ springdoc:
     path: /swagger-ui.html
 server:
   forward-headers-strategy: framework
+  port: 8082
 
 spring:
   application:
@@ -18,14 +19,13 @@ spring:
   jpa:
     hibernate:
       ddl-auto: validate
-#  kafka:
-#    bootstrap-servers: localhost:9092 #lendmate-kafka:9092
-#    consumer:
-#      group-id: product-service
-#      auto-offset-reset: earliest
-#      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-#      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-
+  kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      properties:
+        spring.json.add.type.headers: false
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
 
 aws:
   accessKeyId: AKIAT25QXJXDR3JVEHWM

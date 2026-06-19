@@ -3,6 +3,8 @@ package com.lendmate.orderservice.service.impl;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.lendmate.orderservice.kafka.OrderEvent;
+import com.lendmate.orderservice.kafka.OrderProducer;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,6 +25,7 @@ public class OrderServiceImpl implements OrderService {
     private final OrderRepository orderRepository;
     private final OrderMapper mapper;
     private final OrderItemMapper itemMapper;
+    private final OrderProducer orderProducer;
 
     @Override
     public OrderResponse getOrderById(Long id) {
@@ -40,6 +43,12 @@ public class OrderServiceImpl implements OrderService {
     public OrderResponse createOrder(OrderRequest request) {
         Order order = mapper.toEntity(request);
         Order saved = orderRepository.save(order);
+
+        orderProducer.sendOrderEvent(new OrderEvent(
+                saved.getId(),
+                "ORDER_CONFIRMED",
+                request.getUserId()
+        ));
         return mapper.toDto(saved);
     }
 
