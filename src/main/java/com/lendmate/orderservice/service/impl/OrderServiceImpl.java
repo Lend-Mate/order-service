@@ -3,8 +3,10 @@ package com.lendmate.orderservice.service.impl;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.lendmate.orderservice.kafka.OrderEvent;
+import com.lendmate.orderservice.event.OrderEvent;
 import com.lendmate.orderservice.kafka.OrderProducer;
+import com.lendmate.orderservice.service.OrderNumberGenerator;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,6 +28,8 @@ public class OrderServiceImpl implements OrderService {
     private final OrderMapper mapper;
     private final OrderItemMapper itemMapper;
     private final OrderProducer orderProducer;
+    private final OrderNumberGenerator orderNumberGenerator;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Override
     public OrderResponse getOrderById(Long id) {
@@ -42,12 +46,14 @@ public class OrderServiceImpl implements OrderService {
     @Transactional
     public OrderResponse createOrder(OrderRequest request) {
         Order order = mapper.toEntity(request);
+        order.setOrderNumber(orderNumberGenerator.generate());
         Order saved = orderRepository.save(order);
 
-        orderProducer.sendOrderEvent(new OrderEvent(
+        eventPublisher.publishEvent(new OrderEvent(
                 saved.getId(),
                 "ORDER_CONFIRMED",
-                request.getUserId()
+                request.getUserId(),
+                saved.getOrderNumber()
         ));
         return mapper.toDto(saved);
     }

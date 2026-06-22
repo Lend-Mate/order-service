@@ -1,4 +1,4 @@
-package com.lendmate.orderservice.kafka;
+package com.lendmate.orderservice.event;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -11,4 +11,5 @@ public class OrderEvent {
     private Long orderId;
     private String status;
     private Long userId;
+    private String orderNumber;
 }
