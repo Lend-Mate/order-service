@@ -1,6 +1,7 @@
-package com.lendmate.orderservice.event;
+package com.lendmate.orderservice.event.listener;
 
-import com.lendmate.orderservice.kafka.OrderProducer;
+import com.lendmate.orderservice.kafka.producer.OrderProducer;
+import com.lendmate.orderservice.kafka.event.OrderEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionPhase;

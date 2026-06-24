@@ -3,9 +3,10 @@ package com.lendmate.orderservice.service.impl;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.lendmate.orderservice.event.OrderEvent;
-import com.lendmate.orderservice.kafka.OrderProducer;
+import com.lendmate.orderservice.event.factory.OrderEventFactory;
+import com.lendmate.orderservice.kafka.producer.OrderProducer;
 import com.lendmate.orderservice.service.OrderNumberGenerator;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,6 +23,7 @@ import com.lendmate.orderservice.service.OrderService;
 import lombok.AllArgsConstructor;
 
 @Service
+@Slf4j
 @AllArgsConstructor
 public class OrderServiceImpl implements OrderService {
     private final OrderRepository orderRepository;
@@ -30,6 +32,7 @@ public class OrderServiceImpl implements OrderService {
     private final OrderProducer orderProducer;
     private final OrderNumberGenerator orderNumberGenerator;
     private final ApplicationEventPublisher eventPublisher;
+    private final OrderEventFactory orderEventFactory;
 
     @Override
     public OrderResponse getOrderById(Long id) {
@@ -47,14 +50,10 @@ public class OrderServiceImpl implements OrderService {
     public OrderResponse createOrder(OrderRequest request) {
         Order order = mapper.toEntity(request);
         order.setOrderNumber(orderNumberGenerator.generate());
+        //TODO: alınan ürünün miktarı kontrol edilecek aki durum için yetersiz hatası verilecek!!!
         Order saved = orderRepository.save(order);
-
-        eventPublisher.publishEvent(new OrderEvent(
-                saved.getId(),
-                "ORDER_CONFIRMED",
-                request.getUserId(),
-                saved.getOrderNumber()
-        ));
+        eventPublisher.publishEvent(orderEventFactory.createOrderConfirmedEvent(saved.getId(), saved.getOrderNumber(), request));
+        eventPublisher.publishEvent(orderEventFactory.createStockDecreaseEvent(saved.getId(), request));
         return mapper.toDto(saved);
     }
 

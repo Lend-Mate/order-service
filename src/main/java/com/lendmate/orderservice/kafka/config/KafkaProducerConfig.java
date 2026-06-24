@@ -1,6 +1,6 @@
-package com.lendmate.orderservice.kafka;
+package com.lendmate.orderservice.kafka.config;
 
-import com.lendmate.orderservice.event.OrderEvent;
+import com.lendmate.orderservice.kafka.event.OrderEvent;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.context.annotation.Bean;
