@@ -86,4 +86,10 @@ public class OrderServiceImpl implements OrderService {
         List<Order> orders = orderRepository.findAll().stream().filter(o -> o.getUserId().equals(userId)).collect(Collectors.toList());
         orderRepository.deleteAll(orders);
     }
+
+    @Override
+    public List<OrderResponse> getOrdersByUserId(Long userId) {
+        List<Order> orders = orderRepository.findByUserId(userId);
+        return orders.stream().map(mapper::toDto).collect(Collectors.toList());
+    }
 }
