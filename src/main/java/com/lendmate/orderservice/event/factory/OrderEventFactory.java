@@ -1,5 +1,6 @@
 package com.lendmate.orderservice.event.factory;
 
+import com.lendmate.orderservice.dto.requestDto.OrderItemRequest;
 import com.lendmate.orderservice.dto.requestDto.OrderRequest;
 import com.lendmate.orderservice.kafka.event.OrderEvent;
 import com.lendmate.orderservice.kafka.event.StockDecreaseEvent;
@@ -14,12 +15,13 @@ import java.util.UUID;
 @Slf4j
 public class OrderEventFactory {
 
-    public OrderEvent createOrderConfirmedEvent(Long orderId, String orderNumber, OrderRequest request) {
+    public OrderEvent createOrderConfirmedEvent(Long orderId, String orderNumber, OrderRequest request, List<OrderItemRequest> items) {
         return new OrderEvent(
                 orderId,
                 "ORDER_CONFIRMED",
                 request.getUserId(),
-                orderNumber
+                orderNumber,
+                items
         );
     }
 
