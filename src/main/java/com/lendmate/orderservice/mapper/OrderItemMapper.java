@@ -16,6 +16,8 @@ public class OrderItemMapper {
                 .productId(request.getProductId())
                 .quantity(request.getQuantity())
                 .unitPrice(request.getUnitPrice())
+                .startDate(request.getStartDate())
+                .endDate(request.getEndDate())
                 .createdAt(LocalDateTime.now())
                 .build();
     }
@@ -27,6 +29,8 @@ public class OrderItemMapper {
                 .productId(item.getProductId())
                 .quantity(item.getQuantity())
                 .unitPrice(item.getUnitPrice())
+                .startDate(item.getStartDate())
+                .endDate(item.getEndDate())
                 .build();
     }
 }

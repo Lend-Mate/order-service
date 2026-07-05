@@ -50,9 +50,11 @@ public class OrderServiceImpl implements OrderService {
     public OrderResponse createOrder(OrderRequest request) {
         Order order = mapper.toEntity(request);
         order.setOrderNumber(orderNumberGenerator.generate());
-        //TODO: alınan ürünün miktarı kontrol edilecek aki durum için yetersiz hatası verilecek!!!
+        //TODO: alınan ürünün miktarı kontrol edilecek aksi durum için yetersiz hatası verilecek!!!
         Order saved = orderRepository.save(order);
-        eventPublisher.publishEvent(orderEventFactory.createOrderConfirmedEvent(saved.getId(), saved.getOrderNumber(), request));
+
+        //TODO: saga pattern: https://lend-mate.atlassian.net/jira/software/projects/KAN/boards/1?selectedIssue=KAN-61
+        eventPublisher.publishEvent(orderEventFactory.createOrderConfirmedEvent(saved.getId(), saved.getOrderNumber(), request, request.getItems()));
         eventPublisher.publishEvent(orderEventFactory.createStockDecreaseEvent(saved.getId(), request));
         return mapper.toDto(saved);
     }
