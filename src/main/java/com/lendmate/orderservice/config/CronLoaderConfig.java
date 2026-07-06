@@ -5,8 +5,12 @@ import com.lendmate.orderservice.model.Cron;
 import com.lendmate.orderservice.repository.CronConfigRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 @Configuration
+@Profile("!test")
+@EnableScheduling
 public class CronLoaderConfig {
 
     @Bean

@@ -41,6 +41,12 @@ public class OrderItem {
     @Column(name = "unit_price", nullable = false)
     private BigDecimal unitPrice;
 
+    @Column(name = "start_date", nullable = false)
+    private LocalDateTime startDate;
+
+    @Column(name = "end_date", nullable = false)
+    private LocalDateTime endDate;
+
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 }

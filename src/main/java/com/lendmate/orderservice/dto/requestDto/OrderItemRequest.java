@@ -1,6 +1,7 @@
 package com.lendmate.orderservice.dto.requestDto;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
@@ -23,4 +24,10 @@ public class OrderItemRequest {
 
     @NotNull
     private BigDecimal unitPrice;
+
+    @NotNull
+    private LocalDateTime startDate;
+
+    @NotNull
+    private LocalDateTime endDate;
 }
