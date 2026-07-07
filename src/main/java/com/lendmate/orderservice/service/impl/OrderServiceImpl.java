@@ -3,8 +3,10 @@ package com.lendmate.orderservice.service.impl;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.lendmate.orderservice.client.MockClient;
 import com.lendmate.orderservice.event.factory.OrderEventFactory;
 import com.lendmate.orderservice.kafka.producer.OrderProducer;
+import com.lendmate.orderservice.model.OrderStatus;
 import com.lendmate.orderservice.service.CartService;
 import com.lendmate.orderservice.service.OrderNumberGenerator;
 import lombok.extern.slf4j.Slf4j;
@@ -34,6 +36,7 @@ public class OrderServiceImpl implements OrderService {
     private final OrderNumberGenerator orderNumberGenerator;
     private final ApplicationEventPublisher eventPublisher;
     private final OrderEventFactory orderEventFactory;
+    private final MockClient paymentClient;
     private final CartService cartService;
 
     @Override
@@ -66,19 +69,13 @@ public class OrderServiceImpl implements OrderService {
     @Transactional
     public OrderResponse updateOrder(Long id, OrderRequest request) {
         Order order = orderRepository.findById(id).orElseThrow();
+        boolean isDeliveredAndCanceled = order.getStatus().equals(OrderStatus.DELIVERED) && request.getStatus().equals(OrderStatus.CANCELLED);
+        if(isDeliveredAndCanceled){
         mapper.updateEntity(order, request);
-        // replace items if provided
-        if (request.getItems() != null) {
-            // remove existing
-            order.getItems().clear();
-            List<OrderItem> items = request.getItems().stream()
-                    .map(itemMapper::toEntity)
-                    .collect(Collectors.toList());
-            items.forEach(it -> it.setOrder(order));
-            order.setItems(items);
-        }
         Order updated = orderRepository.save(order);
         return mapper.toDto(updated);
+        }
+        throw new RuntimeException();
     }
 
     @Override
@@ -96,5 +93,35 @@ public class OrderServiceImpl implements OrderService {
     public List<OrderResponse> getOrdersByUserId(Long userId) {
         List<Order> orders = orderRepository.findByUserId(userId);
         return orders.stream().map(mapper::toDto).collect(Collectors.toList());
+    }
+
+    @Override
+    public void checkPendingPayments() {
+        List<Order> orders = orderRepository.findByStatus(OrderStatus.PENDING);
+        log.info("Orders size is {}", orders.size());
+        orders.stream().filter(order -> !orders.isEmpty())
+                .forEach(order -> {
+                    String status = paymentClient.getPaymentStatus(order.getId());
+                    if ("SUCCESS".equalsIgnoreCase(status)) {
+                        order.setStatus(OrderStatus.CONFIRMED);
+                        orderRepository.save(order);
+                    }
+                });
+
+    }
+
+    @Override
+    public void convertConfirmedToDelivered() {
+        List<Order> orders = orderRepository.findByStatus(OrderStatus.CONFIRMED);
+        log.info("Orders size is {}", orders.size());
+        orders.stream().filter(order -> !orders.isEmpty())
+                .forEach(order -> {
+                    String status = paymentClient.getConfirmedStatus(order.getId());
+                    if ("SUCCESS".equalsIgnoreCase(status)) {
+                        order.setStatus(OrderStatus.DELIVERED);
+                        orderRepository.save(order);
+                    }
+                });
+
     }
 }

@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.lendmate.orderservice.dto.requestDto.OrderRequest;
 import com.lendmate.orderservice.dto.responseDto.OrderResponse;
+import com.lendmate.orderservice.model.OrderStatus;
 
 public interface OrderService {
     OrderResponse getOrderById(Long id);
@@ -13,4 +14,6 @@ public interface OrderService {
     void deleteOrder(Long id);
     void deleteOrdersByUser(Long userId);
     public List<OrderResponse> getOrdersByUserId(Long userId);
+    public void checkPendingPayments();
+    public void convertConfirmedToDelivered();
 }

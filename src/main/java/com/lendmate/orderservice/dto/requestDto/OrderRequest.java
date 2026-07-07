@@ -21,6 +21,7 @@ public class OrderRequest {
 
     private String description;
 
+    @NotNull
     private OrderStatus status;
 
     @NotNull

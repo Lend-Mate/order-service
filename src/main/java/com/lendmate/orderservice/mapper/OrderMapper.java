@@ -64,12 +64,11 @@ public class OrderMapper {
     }
 
     public void updateEntity(Order order, OrderRequest request) {
-        if (request.getUserId() != null) order.setUserId(request.getUserId());
-        if (request.getDescription() != null) order.setDescription(request.getDescription());
+        //if (request.getUserId() != null) order.setUserId(request.getUserId());
+        //if (request.getDescription() != null) order.setDescription(request.getDescription());
         if (request.getStatus() != null) order.setStatus(request.getStatus());
-        if (request.getTotalPrice() != null) order.setTotalPrice(request.getTotalPrice());
-        if (request.getAddressId() != null) order.setAddressId(request.getAddressId());
+        //if (request.getTotalPrice() != null) order.setTotalPrice(request.getTotalPrice());
+       // if (request.getAddressId() != null) order.setAddressId(request.getAddressId());
         order.setUpdatedAt(LocalDateTime.now());
-        // items handled in service
     }
 }
