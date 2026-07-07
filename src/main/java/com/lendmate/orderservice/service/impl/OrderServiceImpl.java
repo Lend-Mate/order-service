@@ -5,6 +5,7 @@ import java.util.stream.Collectors;
 
 import com.lendmate.orderservice.event.factory.OrderEventFactory;
 import com.lendmate.orderservice.kafka.producer.OrderProducer;
+import com.lendmate.orderservice.service.CartService;
 import com.lendmate.orderservice.service.OrderNumberGenerator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
@@ -33,6 +34,7 @@ public class OrderServiceImpl implements OrderService {
     private final OrderNumberGenerator orderNumberGenerator;
     private final ApplicationEventPublisher eventPublisher;
     private final OrderEventFactory orderEventFactory;
+    private final CartService cartService;
 
     @Override
     public OrderResponse getOrderById(Long id) {
@@ -52,6 +54,7 @@ public class OrderServiceImpl implements OrderService {
         order.setOrderNumber(orderNumberGenerator.generate());
         //TODO: alınan ürünün miktarı kontrol edilecek aksi durum için yetersiz hatası verilecek!!!
         Order saved = orderRepository.save(order);
+        cartService.deleteCartByUserId(request.getUserId());
 
         //TODO: saga pattern: https://lend-mate.atlassian.net/jira/software/projects/KAN/boards/1?selectedIssue=KAN-61
         eventPublisher.publishEvent(orderEventFactory.createOrderConfirmedEvent(saved.getId(), saved.getOrderNumber(), request, request.getItems()));

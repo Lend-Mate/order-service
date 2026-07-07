@@ -9,4 +9,5 @@ public interface CartService {
     CartResponse createCart(CartRequest request);
     List<CartResponse> getCartsByUser(Long userId);
     void deleteCart(Long id);
+    void deleteCartByUserId(Long userId);
 }
