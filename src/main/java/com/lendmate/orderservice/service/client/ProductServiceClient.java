@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 
-@FeignClient(name = "product-service", url = "http://product-service:8080")
+@FeignClient(name = "product-service", url = "${product-service.url}")
 public interface ProductServiceClient {
 
     @GetMapping("/products/batch")

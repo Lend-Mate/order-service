@@ -4,11 +4,14 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.lendmate.orderservice.client.MockClient;
+import com.lendmate.orderservice.dto.responseDto.OrderItemResponse;
+import com.lendmate.orderservice.dto.responseDto.ProductResponse;
 import com.lendmate.orderservice.event.factory.OrderEventFactory;
 import com.lendmate.orderservice.kafka.producer.OrderProducer;
 import com.lendmate.orderservice.model.OrderStatus;
 import com.lendmate.orderservice.service.CartService;
 import com.lendmate.orderservice.service.OrderNumberGenerator;
+import com.lendmate.orderservice.service.client.ProductServiceClient;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
@@ -38,6 +41,7 @@ public class OrderServiceImpl implements OrderService {
     private final OrderEventFactory orderEventFactory;
     private final MockClient paymentClient;
     private final CartService cartService;
+    private final ProductServiceClient productServiceClient;
 
     @Override
     public OrderResponse getOrderById(Long id) {
@@ -129,6 +133,31 @@ public class OrderServiceImpl implements OrderService {
     public List<OrderResponse> getDeliveredOrders(Long userId) {
         List<Order> orders = orderRepository.findByUserIdAndStatus(userId, OrderStatus.DELIVERED);
         log.info("Orders size is {}", orders.size());
-        return orders.stream().map(mapper::toDto).collect(Collectors.toList());
+
+        List<Long> productIds = orders.stream()
+                .flatMap(order -> order.getItems().stream())
+                .map(OrderItem::getProductId)
+                .distinct()
+                .collect(Collectors.toList());
+
+        List<ProductResponse> products = productServiceClient.getProductsByIds(productIds);
+
+        List<OrderResponse> orderResponses = orders.stream().map(mapper::toDto).toList();
+        for (Order order : orders) {
+            for (int j = 0; j < order.getItems().size(); j++) {
+                OrderItem item = order.getItems().get(j);
+                OrderItemResponse itemResponse = itemMapper.toDto(item);
+                products.stream()
+                        .filter(p -> p.getId().equals(item.getProductId()))
+                        .findFirst().ifPresent(itemResponse::setProduct);
+
+                int finalJ = j;
+                orderResponses.stream()
+                        .filter(o -> o.getId().equals(order.getId()))
+                        .findFirst()
+                        .ifPresent(o -> o.getItems().set(finalJ, itemResponse));
+            }
+        }
+        return orderResponses;
     }
 }
