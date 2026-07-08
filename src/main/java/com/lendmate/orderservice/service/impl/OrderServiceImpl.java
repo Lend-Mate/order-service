@@ -124,4 +124,11 @@ public class OrderServiceImpl implements OrderService {
                 });
 
     }
+
+    @Override
+    public List<OrderResponse> getDeliveredOrders(Long userId) {
+        List<Order> orders = orderRepository.findByUserIdAndStatus(userId, OrderStatus.DELIVERED);
+        log.info("Orders size is {}", orders.size());
+        return orders.stream().map(mapper::toDto).collect(Collectors.toList());
+    }
 }
