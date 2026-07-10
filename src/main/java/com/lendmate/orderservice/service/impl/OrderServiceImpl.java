@@ -3,7 +3,6 @@ package com.lendmate.orderservice.service.impl;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.lendmate.orderservice.client.MockClient;
 import com.lendmate.orderservice.dto.responseDto.OrderItemResponse;
 import com.lendmate.orderservice.dto.responseDto.ProductResponse;
 import com.lendmate.orderservice.client.mock.MockClient;
@@ -26,7 +25,6 @@ import com.lendmate.orderservice.dto.responseDto.OrderResponse;
 import com.lendmate.orderservice.mapper.OrderItemMapper;
 import com.lendmate.orderservice.mapper.OrderMapper;
 import com.lendmate.orderservice.model.Order;
-import com.lendmate.orderservice.model.OrderItem;
 import com.lendmate.orderservice.repository.OrderRepository;
 import com.lendmate.orderservice.service.OrderService;
 
