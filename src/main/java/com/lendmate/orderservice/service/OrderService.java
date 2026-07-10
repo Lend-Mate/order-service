@@ -13,7 +13,8 @@ public interface OrderService {
     OrderResponse updateOrder(Long id, OrderRequest request);
     void deleteOrder(Long id);
     void deleteOrdersByUser(Long userId);
-    public List<OrderResponse> getOrdersByUserId(Long userId);
-    public void checkPendingPayments();
-    public void convertConfirmedToDelivered();
+    List<OrderResponse> getOrdersByUserId(Long userId);
+    void checkPendingPayments();
+    void convertConfirmedToDelivered();
+    List<OrderResponse> getDeliveredOrders(Long userId);
 }

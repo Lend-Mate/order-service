@@ -43,12 +43,9 @@ public class OrderController {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping
-    public ResponseEntity<List<OrderResponse>> getOrders(
-            @RequestParam(required = false) Long userId) {
-        if (userId != null) {
-            return ResponseEntity.ok(orderService.getOrdersByUserId(userId));
-        }
-        return ResponseEntity.ok(orderService.getAllOrders());
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<OrderResponse>> getDeliveredOrders(
+            @PathVariable Long userId) {
+        return ResponseEntity.ok(orderService.getDeliveredOrders(userId));
     }
 }

@@ -10,4 +10,5 @@ import com.lendmate.orderservice.model.Cart;
 @Repository
 public interface CartRepository extends JpaRepository<Cart, Long> {
     List<Cart> findByUserId(Long userId);
+    void deleteByUserId(Long userId);
 }

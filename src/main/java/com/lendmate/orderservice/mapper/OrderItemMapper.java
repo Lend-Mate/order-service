@@ -2,6 +2,7 @@ package com.lendmate.orderservice.mapper;
 
 import com.lendmate.orderservice.dto.requestDto.OrderItemRequest;
 import com.lendmate.orderservice.dto.responseDto.OrderItemResponse;
+import com.lendmate.orderservice.dto.responseDto.ProductResponse;
 import com.lendmate.orderservice.model.OrderItem;
 import org.springframework.stereotype.Component;
 
@@ -26,7 +27,7 @@ public class OrderItemMapper {
         if (item == null) return null;
         return OrderItemResponse.builder()
                 .id(item.getId())
-                .productId(item.getProductId())
+                .product(new ProductResponse())
                 .quantity(item.getQuantity())
                 .unitPrice(item.getUnitPrice())
                 .startDate(item.getStartDate())

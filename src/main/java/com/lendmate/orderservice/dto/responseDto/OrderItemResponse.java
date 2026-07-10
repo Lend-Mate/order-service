@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class OrderItemResponse {
     private Long id;
-    private Long productId;
+    private ProductResponse product;
     private Integer quantity;
     private BigDecimal unitPrice;
     private LocalDateTime startDate;
