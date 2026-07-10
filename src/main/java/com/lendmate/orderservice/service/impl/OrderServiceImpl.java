@@ -3,11 +3,15 @@ package com.lendmate.orderservice.service.impl;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.lendmate.orderservice.client.MockClient;
+import com.lendmate.orderservice.client.mock.MockClient;
+import com.lendmate.orderservice.client.product.dto.requestDto.ProductAvailabilityRequest;
+import com.lendmate.orderservice.client.product.mapper.ProductAvailabilityMapper;
 import com.lendmate.orderservice.event.factory.OrderEventFactory;
 import com.lendmate.orderservice.kafka.producer.OrderProducer;
+import com.lendmate.orderservice.model.OrderItem;
 import com.lendmate.orderservice.model.OrderStatus;
 import com.lendmate.orderservice.service.OrderNumberGenerator;
+import com.lendmate.orderservice.client.product.ProductServiceClient;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
@@ -18,7 +22,6 @@ import com.lendmate.orderservice.dto.responseDto.OrderResponse;
 import com.lendmate.orderservice.mapper.OrderItemMapper;
 import com.lendmate.orderservice.mapper.OrderMapper;
 import com.lendmate.orderservice.model.Order;
-import com.lendmate.orderservice.model.OrderItem;
 import com.lendmate.orderservice.repository.OrderRepository;
 import com.lendmate.orderservice.service.OrderService;
 
@@ -36,6 +39,8 @@ public class OrderServiceImpl implements OrderService {
     private final ApplicationEventPublisher eventPublisher;
     private final OrderEventFactory orderEventFactory;
     private final MockClient paymentClient;
+    private final ProductServiceClient productServiceClient;
+    private final ProductAvailabilityMapper availabilityMapper;
 
     @Override
     public OrderResponse getOrderById(Long id) {
@@ -54,7 +59,13 @@ public class OrderServiceImpl implements OrderService {
         Order order = mapper.toEntity(request);
         order.setOrderNumber(orderNumberGenerator.generate());
         //TODO: alınan ürünün miktarı kontrol edilecek aksi durum için yetersiz hatası verilecek!!!
+        //TODO: PA kayıtlarındaki enddate şuanki tarihi geçerse cron ile ilgili productun quantity artırılacak!!!
         Order saved = orderRepository.save(order);
+        List<OrderItem> orderItem = saved.getItems();
+        orderItem.forEach((item) -> {
+            ProductAvailabilityRequest availabilityRequest = availabilityMapper.toDto(item);
+            productServiceClient.createProductAvailabilityRecord(availabilityRequest);
+        });
 
         //TODO: saga pattern: https://lend-mate.atlassian.net/jira/software/projects/KAN/boards/1?selectedIssue=KAN-61
         eventPublisher.publishEvent(orderEventFactory.createOrderConfirmedEvent(saved.getId(), saved.getOrderNumber(), request, request.getItems()));

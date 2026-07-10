@@ -36,8 +36,8 @@ public class OrderMapper {
         if (request.getItems() != null) {
             List<OrderItem> items = request.getItems().stream()
                     .map(itemMapper::toEntity)
-                    .peek(item -> item.setOrder(order))
                     .collect(Collectors.toList());
+            items.forEach(item -> item.setOrder(order));
             order.setItems(items);
         }
         return order;

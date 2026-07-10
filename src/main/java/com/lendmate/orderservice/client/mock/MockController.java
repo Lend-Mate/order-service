@@ -1,4 +1,4 @@
-package com.lendmate.orderservice.client;
+package com.lendmate.orderservice.client.mock;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;

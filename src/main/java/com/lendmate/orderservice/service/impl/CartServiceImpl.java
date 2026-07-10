@@ -5,7 +5,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 import com.lendmate.orderservice.dto.responseDto.ProductResponse;
-import com.lendmate.orderservice.service.client.ProductServiceClient;
+import com.lendmate.orderservice.client.product.ProductServiceClient;
 import org.springframework.stereotype.Service;
 
 import com.lendmate.orderservice.dto.requestDto.CartRequest;

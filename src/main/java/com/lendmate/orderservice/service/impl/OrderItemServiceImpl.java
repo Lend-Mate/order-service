@@ -23,9 +23,9 @@ public class OrderItemServiceImpl implements OrderItemService {
 
     @Override
     public OrderItemResponse createOrderItem(Long orderId, OrderItemRequest request) {
-        Order order = orderRepository.findById(orderId).orElseThrow();
+       // Order order = orderRepository.findById(orderId).orElseThrow();
         OrderItem item = mapper.toEntity(request);
-        item.setOrder(order);
+       // item.setOrder(orderId);
         OrderItem saved = itemRepository.save(item);
         return mapper.toDto(saved);
     }
