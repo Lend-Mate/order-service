@@ -1,14 +1,17 @@
 package com.lendmate.orderservice.service.impl;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
+import com.lendmate.orderservice.dto.requestDto.OrderItemRequest;
 import com.lendmate.orderservice.dto.responseDto.OrderItemResponse;
 import com.lendmate.orderservice.dto.responseDto.ProductResponse;
 import com.lendmate.orderservice.client.mock.MockClient;
 import com.lendmate.orderservice.client.product.dto.requestDto.ProductAvailabilityRequest;
 import com.lendmate.orderservice.client.product.mapper.ProductAvailabilityMapper;
 import com.lendmate.orderservice.event.factory.OrderEventFactory;
+import com.lendmate.orderservice.exception.ProductQuantityIsInSufficient;
 import com.lendmate.orderservice.kafka.producer.OrderProducer;
 import com.lendmate.orderservice.model.OrderItem;
 import com.lendmate.orderservice.model.OrderStatus;
@@ -62,8 +65,12 @@ public class OrderServiceImpl implements OrderService {
     public OrderResponse createOrder(OrderRequest request) {
         Order order = mapper.toEntity(request);
         order.setOrderNumber(orderNumberGenerator.generate());
-        //TODO: alınan ürünün miktarı kontrol edilecek aksi durum için yetersiz hatası verilecek!!!
-        //TODO: PA kayıtlarındaki enddate şuanki tarihi geçerse cron ile ilgili productun quantity artırılacak!!!
+
+        if(!isOrderQuantityEnough(request.getItems())){
+            throw new ProductQuantityIsInSufficient("Product Quantity is insufficient");
+        }
+
+        //TODO: NODE.JS PA kayıtlarındaki enddate şuanki tarihi geçerse cron ile ilgili productun quantity artırılacak!!!
         Order saved = orderRepository.save(order);
         List<OrderItem> orderItem = saved.getItems();
         orderItem.forEach((item) -> {
@@ -168,5 +175,16 @@ public class OrderServiceImpl implements OrderService {
             }
         }
         return orderResponses;
+    }
+
+
+    private boolean isOrderQuantityEnough(List<OrderItemRequest> items){
+        List<Long> productIds = items.stream().map(OrderItemRequest::getProductId).toList();
+        Map<Long, Integer> quantities = productServiceClient.getProductQuantities(productIds);
+
+        return items.stream().allMatch(item -> {
+            Integer availableStock = quantities.get(item.getProductId());
+            return availableStock != null && item.getQuantity() <= availableStock;
+        });
     }
 }

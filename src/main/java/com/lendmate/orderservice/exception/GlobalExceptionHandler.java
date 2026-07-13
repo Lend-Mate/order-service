@@ -15,4 +15,11 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.NOT_FOUND)
                 .body(new ErrorResponse(HttpStatus.NOT_FOUND.value(), ex.getMessage()));
     }
+
+    @ExceptionHandler(ProductQuantityIsInSufficient.class)
+    public ResponseEntity<ErrorResponse> handleException(ProductQuantityIsInSufficient ex) {
+        return ResponseEntity
+                .status(HttpStatus.INSUFFICIENT_STORAGE)
+                .body(new ErrorResponse(HttpStatus.INSUFFICIENT_STORAGE.value(), ex.getMessage()));
+    }
 }
