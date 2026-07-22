@@ -1,6 +1,7 @@
 package com.lendmate.orderservice.dto.responseDto;
 
 import com.lendmate.orderservice.model.Enum.Currency;
+import com.lendmate.orderservice.model.Enum.RentalPeriod;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -9,6 +10,7 @@ import lombok.NoArgsConstructor;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 @Data
 @Builder
@@ -25,8 +27,7 @@ public class ProductResponse {
     private BigDecimal price;
     private String brand;
     private Integer stockQuantity;
-    private Integer minRentalDays;
-    private Integer maxRentalDays;
+    private Map<RentalPeriod, BigDecimal> rentalPeriodPrices;
     private BigDecimal depositAmount;
     private List<ProductImageResponse> images;
     private LocalDateTime createdAt;
