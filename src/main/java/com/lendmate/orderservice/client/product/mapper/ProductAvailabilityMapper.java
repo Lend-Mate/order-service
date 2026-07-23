@@ -14,6 +14,7 @@ public class ProductAvailabilityMapper {
                 .productId(orderItem.getProductId())
                 .startDate(orderItem.getStartDate())
                 .endDate(orderItem.getEndDate())
+                .quantity(orderItem.getQuantity())
                 .reason(Reason.RENTED)
                 .build();
     }

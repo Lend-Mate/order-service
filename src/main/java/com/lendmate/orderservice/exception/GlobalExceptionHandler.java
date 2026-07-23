@@ -13,13 +13,13 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleException(CronExpressionNotFound ex) {
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
-                .body(new ErrorResponse(HttpStatus.NOT_FOUND.value(), ex.getMessage()));
+                .body(new ErrorResponse(HttpStatus.NOT_FOUND.value(), ex.getMessage(), null));
     }
 
     @ExceptionHandler(ProductQuantityIsInSufficient.class)
     public ResponseEntity<ErrorResponse> handleException(ProductQuantityIsInSufficient ex) {
         return ResponseEntity
                 .status(HttpStatus.INSUFFICIENT_STORAGE)
-                .body(new ErrorResponse(HttpStatus.INSUFFICIENT_STORAGE.value(), ex.getMessage()));
+                .body(new ErrorResponse(HttpStatus.INSUFFICIENT_STORAGE.value(), ex.getMessage(), ex.getBody()));
     }
 }

@@ -26,4 +26,7 @@ public class ProductAvailabilityRequest {
 
     @NotNull(message = "Reason is mandatory")
     private Reason reason;
+
+    @NotNull(message = "Stock quantity is mandatory")
+    private Integer quantity;
 }
