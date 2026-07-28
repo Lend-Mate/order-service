@@ -9,7 +9,7 @@ server:
 
 spring:
   application:
-    name: lendmate
+    name: order-service
   profiles:
     active: dev
 #  data:
