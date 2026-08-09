@@ -25,6 +25,23 @@ aws:
   secretAccessKey: W+T0V2boOWuFRS6D/iZzGWdFoHiDa2kGQjgkGwnP
   region: us-east-1
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*" # actuator / metrics / health endpointlerini dışarı açar
+  metrics:
+    tags:
+      # Grafana dashboard'larının uygulamayı ayırt etmesi için service.name şarttır
+      application: ${spring.application.name:order-service}
+  tracing:
+    sampling:
+      probability: 1.0
+
+logging:
+  level:
+    com.project: INFO
+
 
 
 
