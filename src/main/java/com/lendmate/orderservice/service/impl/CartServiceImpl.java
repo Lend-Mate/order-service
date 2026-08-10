@@ -33,19 +33,23 @@ public class CartServiceImpl implements CartService {
 
     @Override
     public List<CartResponse> getCartsByUser(Long userId) {
-        List<CartResponse> carts = cartRepository.findByUserId(userId).stream().map(mapper::toDto).toList();
+        try {
+            List<CartResponse> carts = cartRepository.findByUserId(userId).stream().map(mapper::toDto).toList();
 
-        List<Long> productIds = carts.stream().map(CartResponse::getProductId).toList();
+            List<Long> productIds = carts.stream().map(CartResponse::getProductId).toList();
 
-        List<ProductResponse> products = productServiceClient.getProductsByIds(productIds);
+            List<ProductResponse> products = productServiceClient.getProductsByIds(productIds);
 
-        for (CartResponse cart : carts) {
-            Long productId = cart.getProductId();
-            Optional<ProductResponse> product = products.stream().filter(p -> Objects.equals(p.getId(), productId)).findFirst();
-            product.ifPresent(cart::setProduct);
+            for (CartResponse cart : carts) {
+                Long productId = cart.getProductId();
+                Optional<ProductResponse> product = products.stream().filter(p -> Objects.equals(p.getId(), productId)).findFirst();
+                product.ifPresent(cart::setProduct);
+            }
+
+            return carts;
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to fetch product details for carts", e);
         }
-
-        return carts;
     }
 
     @Override
