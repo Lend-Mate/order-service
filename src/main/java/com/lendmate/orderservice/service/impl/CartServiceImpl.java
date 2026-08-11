@@ -6,6 +6,7 @@ import java.util.Optional;
 
 import com.lendmate.orderservice.dto.responseDto.ProductResponse;
 import com.lendmate.orderservice.client.product.ProductServiceClient;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import com.lendmate.orderservice.dto.requestDto.CartRequest;
@@ -19,6 +20,7 @@ import lombok.AllArgsConstructor;
 
 @Service
 @AllArgsConstructor
+@Slf4j
 public class CartServiceImpl implements CartService {
     private final CartRepository cartRepository;
     private final ProductServiceClient productServiceClient;
@@ -38,7 +40,9 @@ public class CartServiceImpl implements CartService {
 
             List<Long> productIds = carts.stream().map(CartResponse::getProductId).toList();
 
+            log.info("Fetching product details for product IDs: {}", productIds);
             List<ProductResponse> products = productServiceClient.getProductsByIds(productIds);
+            log.info("Fetched product details: {}", products);
 
             for (CartResponse cart : carts) {
                 Long productId = cart.getProductId();

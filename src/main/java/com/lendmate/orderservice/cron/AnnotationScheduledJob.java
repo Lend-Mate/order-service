@@ -19,14 +19,14 @@ public class AnnotationScheduledJob {
 
     @Scheduled(cron = "#{@everySecondCron}")
     public void runEverySecondJob() {
-        log.info("[{}] Job SECONDLY executed - cron loaded from DB via @Scheduled", now());
+        //log.info("[{}] Job SECONDLY executed - cron loaded from DB via @Scheduled", now());
         orderService.checkPendingPayments();
         orderService.convertConfirmedToDelivered();
     }
 
     @Scheduled(cron = "#{@everyMinuteCron}")
     public void runEveryMinuteJob() {
-        log.info("[{}] Job MINUTELY executed - cron loaded from DB via @Scheduled", now());
+        //log.info("[{}] Job MINUTELY executed - cron loaded from DB via @Scheduled", now());
     }
 
 
