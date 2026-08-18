@@ -1,47 +1,24 @@
-springdoc:
-  api-docs:
-    path: /v3/api-docs
-  swagger-ui:
-    path: /swagger-ui.html
-server:
-  forward-headers-strategy: framework
-  port: 8082
-
 spring:
   application:
     name: order-service
   profiles:
     active: dev
-#  data:
-#    redis:
-#      host: localhost
-#      port: 6379
-  jpa:
-    hibernate:
-      ddl-auto: validate
+  config:
+    import: "optional:configserver:${CONFIG_SERVER_URL:http://localhost:8888}"
 
-aws:
-  accessKeyId: AKIAT25QXJXDR3JVEHWM
-  secretAccessKey: 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
-  region: us-east-1
+server:
+  port: 8082
 
-management:
-  endpoints:
-    web:
-      exposure:
-        include: "*" # actuator / metrics / health endpointlerini dışarı açar
-  metrics:
-    tags:
-      # Grafana dashboard'larının uygulamayı ayırt etmesi için service.name şarttır
-      application: ${spring.application.name:order-service}
-  tracing:
-    sampling:
-      probability: 1.0
+---
+spring:
+  config:
+    activate:
+      on-profile: stage
+    import: "configserver:${CONFIG_SERVER_URL}"
 
-logging:
-  level:
-    com.project: INFO
-
-
-
-
+---
+spring:
+  config:
+    activate:
+      on-profile: prod
+    import: "configserver:${CONFIG_SERVER_URL}"

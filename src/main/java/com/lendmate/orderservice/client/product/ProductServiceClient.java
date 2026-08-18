@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import java.util.List;
 import java.util.Map;
 
-@FeignClient(name = "product-service", url = "${product-service.url}")
+@FeignClient(name = "product-service")
 public interface ProductServiceClient {
 
     @GetMapping("/products/batch")
