@@ -2,9 +2,7 @@ spring:
   application:
     name: order-service
   profiles:
-    active: dev
-  config:
-    import: "optional:configserver:${CONFIG_SERVER_URL:http://localhost:8888}"
+    active: ${SPRING_PROFILES_ACTIVE:dev}
 
 server:
   port: 8082
@@ -13,12 +11,19 @@ server:
 spring:
   config:
     activate:
+      on-profile: dev
+    import: "optional:configserver:${CONFIG_SERVER_URL:http://localhost:8888}"
+
+---
+spring:
+  config:
+    activate:
       on-profile: stage
-    import: "configserver:${CONFIG_SERVER_URL}"
+    import: "configserver:${CONFIG_SERVER_URL:http://config-server:8888}"
 
 ---
 spring:
   config:
     activate:
       on-profile: prod
-    import: "configserver:${CONFIG_SERVER_URL}"
+    import: "configserver:${CONFIG_SERVER_URL:http://config-server:8888}"
