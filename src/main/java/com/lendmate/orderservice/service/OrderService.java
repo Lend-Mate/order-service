@@ -14,7 +14,7 @@ public interface OrderService {
     void deleteOrder(Long id);
     void deleteOrdersByUser(Long userId);
     List<OrderResponse> getOrdersByUserId(Long userId);
-    void checkPendingPayments();
+    void convertPendingToConfirmed();
     void convertConfirmedToDelivered();
     List<OrderResponse> getDeliveredOrders(Long userId);
 }

@@ -118,7 +118,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public void checkPendingPayments() {
+    public void convertPendingToConfirmed() {
         List<Order> orders = orderRepository.findByStatus(OrderStatus.PENDING);
         log.info("Orders size is {}", orders.size());
         orders.stream().filter(order -> !orders.isEmpty())

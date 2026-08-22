@@ -48,4 +48,16 @@ public class OrderController {
             @PathVariable Long userId) {
         return ResponseEntity.ok(orderService.getDeliveredOrders(userId));
     }
+
+    @GetMapping("/convert-pending-to-confirmed")
+    public ResponseEntity<Void> convertPendingToConfirmed() {
+        orderService.convertPendingToConfirmed();
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/convert-confirmed-to-delivered")
+    public ResponseEntity<Void> convertConfirmedToDelivered() {
+        orderService.convertConfirmedToDelivered();
+        return ResponseEntity.ok().build();
+    }
 }
