@@ -1,6 +1,6 @@
 # Order Service
 
-> Sipariş, sipariş kalemi ve sepet işlemlerini yöneten; ürün stok/uygunluk bilgisiyle senkron çalışan ve sipariş ile stok değişikliklerini Kafka üzerinden yayınlayan Spring Boot servisi.
+Sipariş, sipariş kalemi ve sepet işlemlerini yöneten; ürün stok/uygunluk bilgisiyle senkron çalışan ve sipariş ile stok değişikliklerini Kafka üzerinden yayınlayan Spring Boot servisi.
 
 ---
 
