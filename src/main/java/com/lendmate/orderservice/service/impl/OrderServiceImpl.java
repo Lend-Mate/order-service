@@ -1,10 +1,14 @@
 package com.lendmate.orderservice.service.impl;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lendmate.orderservice.dto.requestDto.OrderItemRequest;
 import com.lendmate.orderservice.dto.responseDto.OrderItemResponse;
 import com.lendmate.orderservice.dto.responseDto.ProductResponse;
@@ -13,12 +17,15 @@ import com.lendmate.orderservice.client.product.dto.requestDto.ProductAvailabili
 import com.lendmate.orderservice.client.product.mapper.ProductAvailabilityMapper;
 import com.lendmate.orderservice.event.factory.OrderEventFactory;
 import com.lendmate.orderservice.exception.ProductQuantityIsInSufficient;
+import com.lendmate.orderservice.kafka.event.OrderEvent;
 import com.lendmate.orderservice.kafka.producer.OrderProducer;
 import com.lendmate.orderservice.model.OrderItem;
 import com.lendmate.orderservice.model.OrderStatus;
+import com.lendmate.orderservice.model.OutboxEvent;
 import com.lendmate.orderservice.service.CartService;
 import com.lendmate.orderservice.service.OrderNumberGenerator;
 import com.lendmate.orderservice.client.product.ProductServiceClient;
+import com.lendmate.orderservice.service.OutboxEventService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
@@ -49,6 +56,8 @@ public class OrderServiceImpl implements OrderService {
     private final CartService cartService;
     private final ProductServiceClient productServiceClient;
     private final ProductAvailabilityMapper availabilityMapper;
+    private final OutboxEventService outboxEventService;
+    private final ObjectMapper objectMapper;
 
     @Override
     public OrderResponse getOrderById(Long id) {
@@ -81,9 +90,26 @@ public class OrderServiceImpl implements OrderService {
         });
         cartService.deleteCartByUserId(request.getUserId());
 
+
+
         //TODO: saga pattern: https://lend-mate.atlassian.net/jira/software/projects/KAN/boards/1?selectedIssue=KAN-61
-        eventPublisher.publishEvent(orderEventFactory.createOrderConfirmedEvent(saved.getId(), saved.getOrderNumber(), request, request.getItems()));
-        eventPublisher.publishEvent(orderEventFactory.createStockDecreaseEvent(saved.getId(), request));
+        //eventPublisher.publishEvent(orderEventFactory.createOrderConfirmedEvent(saved.getId(), saved.getOrderNumber(), request, request.getItems()));
+       // eventPublisher.publishEvent(orderEventFactory.createStockDecreaseEvent(saved.getId(), request));
+        OrderEvent orderEvent = orderEventFactory.createOrderConfirmedEvent(saved.getId(), saved.getOrderNumber(), request, request.getItems());
+        try {
+            OutboxEvent outboxEvent = OutboxEvent.builder()
+                    .aggregateId(saved.getId().toString())
+                    .aggregateType("order")
+                    .type("order-confirmed-topic")
+                    .payload(objectMapper.writeValueAsString(orderEvent))
+                    .timestamp(Instant.now())
+                    .build();
+
+            outboxEventService.save(outboxEvent);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+
         return mapper.toDto(saved);
     }
 

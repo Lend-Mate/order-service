@@ -17,6 +17,7 @@ public class OrderEventFactory {
 
     public OrderEvent createOrderConfirmedEvent(Long orderId, String orderNumber, OrderRequest request, List<OrderItemRequest> items) {
         return new OrderEvent(
+                UUID.randomUUID(),
                 orderId,
                 "ORDER_CONFIRMED",
                 request.getUserId(),
