@@ -98,6 +98,7 @@ public class OrderServiceImpl implements OrderService {
         OrderEvent orderEvent = orderEventFactory.createOrderConfirmedEvent(saved.getId(), saved.getOrderNumber(), request, request.getItems());
         try {
             OutboxEvent outboxEvent = OutboxEvent.builder()
+                    .eventId(orderEvent.getEventId())
                     .aggregateId(saved.getId().toString())
                     .aggregateType("order")
                     .type("order-confirmed-topic")

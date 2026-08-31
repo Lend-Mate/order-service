@@ -1,0 +1,4 @@
+ALTER TABLE outbox DROP COLUMN id;
+ALTER TABLE outbox ADD COLUMN id BIGSERIAL PRIMARY KEY;
+ALTER TABLE outbox ADD COLUMN eventid UUID NOT NULL;
+CREATE UNIQUE INDEX idx_outbox_eventid ON outbox (eventid);

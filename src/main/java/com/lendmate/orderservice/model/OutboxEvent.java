@@ -17,8 +17,11 @@ import java.util.UUID;
 @Table(name = "outbox")
 public class OutboxEvent {
     @Id
-    @GeneratedValue
-    private UUID id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(name = "eventid")
+    private UUID eventId;
 
     @Column(name = "aggregatetype")
     private String aggregateType;   // "Order"
