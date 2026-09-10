@@ -39,4 +39,6 @@ public class OutboxEvent {
     @Column(name = "timestamp")
     private Instant timestamp = Instant.now();
 
+    @Column(name = "trace_parent")
+    private String trace_parent;
 }

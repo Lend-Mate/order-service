@@ -1,4 +1,4 @@
-package com.lendmate.orderservice.kafka.event;
+package com.lendmate.orderservice.kafka;
 
 import com.lendmate.orderservice.dto.requestDto.OrderItemRequest;
 import lombok.AllArgsConstructor;

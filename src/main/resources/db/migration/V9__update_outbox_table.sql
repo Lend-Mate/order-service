@@ -1,0 +1,2 @@
+ALTER TABLE outbox ADD COLUMN trace_parent VARCHAR(255);
+ALTER TABLE outbox ADD COLUMN trace_state VARCHAR(255);

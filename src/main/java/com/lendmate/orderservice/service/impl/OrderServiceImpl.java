@@ -1,7 +1,6 @@
 package com.lendmate.orderservice.service.impl;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -15,10 +14,10 @@ import com.lendmate.orderservice.dto.responseDto.ProductResponse;
 import com.lendmate.orderservice.client.mock.MockClient;
 import com.lendmate.orderservice.client.product.dto.requestDto.ProductAvailabilityRequest;
 import com.lendmate.orderservice.client.product.mapper.ProductAvailabilityMapper;
-import com.lendmate.orderservice.event.factory.OrderEventFactory;
+import com.lendmate.orderservice.kafka.OrderEventFactory;
 import com.lendmate.orderservice.exception.ProductQuantityIsInSufficient;
-import com.lendmate.orderservice.kafka.event.OrderEvent;
-import com.lendmate.orderservice.kafka.producer.OrderProducer;
+import com.lendmate.orderservice.kafka.OrderEvent;
+import com.lendmate.orderservice.kafka.OutboxEventPublisher;
 import com.lendmate.orderservice.model.OrderItem;
 import com.lendmate.orderservice.model.OrderStatus;
 import com.lendmate.orderservice.model.OutboxEvent;
@@ -48,7 +47,6 @@ public class OrderServiceImpl implements OrderService {
     private final OrderRepository orderRepository;
     private final OrderMapper mapper;
     private final OrderItemMapper itemMapper;
-    private final OrderProducer orderProducer;
     private final OrderNumberGenerator orderNumberGenerator;
     private final ApplicationEventPublisher eventPublisher;
     private final OrderEventFactory orderEventFactory;
@@ -57,7 +55,7 @@ public class OrderServiceImpl implements OrderService {
     private final ProductServiceClient productServiceClient;
     private final ProductAvailabilityMapper availabilityMapper;
     private final OutboxEventService outboxEventService;
-    private final ObjectMapper objectMapper;
+    private final OutboxEventPublisher outboxEventPublisher;
 
     @Override
     public OrderResponse getOrderById(Long id) {
@@ -93,19 +91,9 @@ public class OrderServiceImpl implements OrderService {
 
 
         //TODO: saga pattern: https://lend-mate.atlassian.net/jira/software/projects/KAN/boards/1?selectedIssue=KAN-61
-        //eventPublisher.publishEvent(orderEventFactory.createOrderConfirmedEvent(saved.getId(), saved.getOrderNumber(), request, request.getItems()));
-       // eventPublisher.publishEvent(orderEventFactory.createStockDecreaseEvent(saved.getId(), request));
         OrderEvent orderEvent = orderEventFactory.createOrderConfirmedEvent(saved.getId(), saved.getOrderNumber(), request, request.getItems());
         try {
-            OutboxEvent outboxEvent = OutboxEvent.builder()
-                    .eventId(orderEvent.getEventId())
-                    .aggregateId(saved.getId().toString())
-                    .aggregateType("order")
-                    .type("order-confirmed-topic")
-                    .payload(objectMapper.writeValueAsString(orderEvent))
-                    .timestamp(Instant.now())
-                    .build();
-
+            OutboxEvent outboxEvent = outboxEventPublisher.publishOrderCreated(orderEvent, saved.getId());
             outboxEventService.save(outboxEvent);
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
